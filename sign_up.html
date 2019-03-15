@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            border: 1px solid black;
+            display: flex;
+        }
+
+        #form-wrapper {
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: flex-start;
+            flex-direction: column;
+            justify-content: center;
+            flex-wrap: nowrap;
+            margin: auto;
+            padding: 16px;
+            width: 440px;
+        }
+
+        #form-wrapper .row {
+            margin: 12px 0;
+        }
+
+        #form-wrapper label {
+            display: inline-block;
+            width: 5em;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="form-wrapper">
+        <h1>注册</h1>
+        <form action="" method="post" id='myForm'>
+            <div class="row">
+                <label>邮箱</label>
+                <input type="text" name='email'>
+                <span class="error"></span>
+            </div>
+            <div class="row">
+                <label>密码</label>
+                <input type="password" name='password'>
+                <span class="error"></span>
+            </div>
+            <div class="row">
+                <label>确认密码</label>
+                <input type="password" name='password-confirm'>
+                <span class="error"></span>
+            </div>
+            <div class="row">
+                <input type="submit" value='注册'>
+            </div>
+        </form>
+    </div>
+    <script src="./jquery-3.3.1.js"></script>
+    <script>
+        $('#myForm').on('submit', (x) => {
+            x.preventDefault();
+            $('#myForm>div .error').text('')
+            let data = {}
+            let need = ['email', 'password', 'password-confirm']
+            need.forEach((value) => {
+                data[value] = $('#myForm').find(`[name=${value}]`).val()
+            })
+            if (data.email === '') {
+                $('#myForm>div:nth-child(1) .error').text('请填邮箱')
+            } else if (data.password === '') {
+                $('#myForm div:nth-child(2) .error').text('请输入密码')
+            } else if (data['password-confirm'] === '') {
+                $('#myForm>div:nth-child(3) .error').text('请确认密码')
+            } else if (data.password !== data['password-confirm']) {
+                $('#myForm>div:nth-child(3) .error').text('密码不匹配')
+            } else {
+                $.post('/sign_up', data)
+                    .then(() => {console.log('success')}, (request) => {
+                        console.log(request.responseText)
+                        let {errors} = JSON.parse(request.responseText)
+                        if (errors.email === 'invalid') {
+                            console.log($('#myForm>div:nth-child(1)>.error'))
+                            $('#myForm>div:nth-child(1)>.error').text('邮箱格式错误')
+                        }
+                    })
+            }
+        })
+
+    </script>
+</body>
+
+</html>
